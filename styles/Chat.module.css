@@ -1,0 +1,407 @@
+/* styles/Chat.module.css */
+
+.container {
+  display: flex;
+  height: 100vh;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.mainContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Garante que o main ocupe a altura toda */
+  overflow: hidden; /* Evita scroll no main */
+  padding: 1.5rem; /* Ajuste o padding */
+  margin-left: 4rem; /* Espaço para a sidebar recolhida, ajuste se necessário */
+  /* Adicione transition se a largura da sidebar mudar */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Adapte quando a sidebar expandir */
+/* .mainContentExpanded {
+  margin-left: 11rem; /* Largura da sidebar expandida
+} */
+
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+  color: hsl(var(--primary)); /* Cor primária para o título */
+  font-weight: 900; /* black */
+  font-size: 1.5rem; /* Equivalente a text-2xl */
+  /* Efeito Neon (opcional, pode precisar ajustar em globals.css) */
+  /* text-shadow: 0 0 5px hsl(var(--primary) / 0.7), 0 0 8px hsl(var(--primary) / 0.7); */
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tabs button {
+  background-color: transparent;
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: bold;
+}
+
+.tabs button:hover {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.tabs button.activeTab {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 8px hsl(var(--primary) / 0.5);
+}
+
+.chatLayout {
+  display: flex;
+  flex-grow: 1;
+  gap: 1.5rem;
+  overflow: hidden; /* Evita scroll duplo */
+}
+
+.chatArea {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Conteúdo interno fará scroll */
+  background-color: hsl(var(--card)); /* Fundo da área de chat */
+  border-radius: var(--radius);
+  /* Sombra Neumorphic (opcional) */
+  /* box-shadow: var(--neumorphic-shadow-outset); */
+  border: 1px solid hsl(var(--border)); /* Borda sutil */
+}
+
+.messagesContainerWrapper {
+  flex-grow: 1;
+  overflow-y: auto; /* Scroll para mensagens */
+  padding: 1.5rem;
+}
+
+.messagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Espaço entre mensagens */
+}
+
+/* Estilos para ChatMessage serão definidos em ChatMessage.module.css,
+   mas podemos ter um estilo base para .message aqui se necessário */
+.message {
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  word-wrap: break-word; /* Quebra palavras longas */
+  line-height: 1.5;
+}
+
+.userMessage {
+  align-self: flex-end;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-bottom-right-radius: 0.25rem; /* Estilo "balão" */
+}
+
+.aiMessage {
+  align-self: flex-start;
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border-bottom-left-radius: 0.25rem; /* Estilo "balão" */
+}
+
+.historyContainer, .configContainer {
+  padding: 1.5rem;
+  overflow-y: auto;
+  height: calc(100% - 4rem); /* Ajustar altura se header estiver fixo */
+}
+
+.historyContainer h2, .configContainer h2 {
+  color: hsl(var(--primary));
+  font-weight: 700;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.historyItem {
+  background-color: hsl(var(--secondary));
+  padding: 0.75rem 1rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.historyItem:hover {
+  background-color: hsl(var(--accent));
+}
+
+.historyDate {
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.historyLoadButton {
+  background: none;
+  border: none;
+  color: hsl(var(--primary));
+  cursor: pointer;
+  padding: 0.25rem;
+}
+.historyLoadButton:hover {
+  opacity: 0.8;
+}
+
+
+.configRow {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.configRow label {
+  font-weight: bold;
+  color: hsl(var(--foreground));
+  font-size: 0.9rem;
+}
+.configRow small {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+}
+.configRow > .switch { /* Estilo básico para o input checkbox */
+    width: 40px;
+    height: 20px;
+    /* Adicione mais estilos para parecer um switch */
+}
+
+.selectInput, .textInputDisplay, .contextTextarea, .textInput {
+  background-color: hsl(var(--input));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  padding: 0.6rem 0.8rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+  width: 100%;
+  font-size: 0.9rem;
+}
+.selectInput:focus, .textInputDisplay:focus, .contextTextarea:focus, .textInput:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.3);
+}
+.contextTextarea {
+    min-height: 100px;
+    resize: vertical;
+}
+.textInputDisplay {
+    cursor: pointer;
+}
+
+.fileInputRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uploadButton, .actionButton, .applyButton {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.uploadButton svg {
+    fill: hsl(var(--primary-foreground));
+}
+
+.uploadButton:hover, .actionButton:hover, .applyButton:hover {
+  background-color: hsl(var(--primary) / 0.9);
+  box-shadow: 0 2px 10px hsl(var(--primary) / 0.4);
+}
+.uploadButton:disabled, .actionButton:disabled, .applyButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.applyButton {
+    margin-top: 1rem; /* Espaço antes do botão aplicar */
+    float: right; /* Alinha à direita se necessário */
+}
+
+.slider {
+  width: 100%;
+  cursor: pointer;
+   /* Estilização básica, pode precisar de prefixos de navegador */
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: hsl(var(--secondary));
+  border-radius: 5px;
+  outline: none;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+.sliderLabels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: -0.25rem; /* Ajuste fino */
+}
+
+.sidePanel {
+  width: 300px; /* Largura fixa para o painel lateral */
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: calc(100vh - 10rem); /* Ajustar altura baseada no header/footer */
+  overflow-y: auto;
+}
+
+.contextInfo, .quickSuggestions, .modelStatus {
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  padding: 1rem;
+  border-radius: var(--radius);
+  /* box-shadow: var(--neumorphic-shadow-outset); */
+}
+
+.contextInfo h3, .quickSuggestions h3, .modelStatus h3 {
+  font-weight: bold;
+  color: hsl(var(--primary));
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid hsl(var(--border));
+  padding-bottom: 0.5rem;
+}
+
+.quickSuggestions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.suggestionButton {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: calc(var(--radius) - 0.25rem);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.8rem;
+}
+.suggestionButton:hover {
+  background-color: hsl(var(--accent));
+}
+
+
+.modelStatus p {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: hsl(var(--muted-foreground));
+  padding: 0.25rem 0;
+}
+.modelStatus .statusValue {
+  font-weight: 600; /* Semibold */
+  color: hsl(var(--foreground));
+}
+.modelStatus .idle { color: gray; }
+.modelStatus .processing, .modelStatus .loading { color: orange; animation: pulse 1.5s infinite ease-in-out; }
+.modelStatus .loaded { color: lightgreen; }
+.modelStatus .error { color: red; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+
+.inputForm {
+  display: flex;
+  padding-top: 1rem;
+  border-top: 1px solid hsl(var(--border));
+  margin-top: auto; /* Empurra para baixo */
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.textInput {
+  flex-grow: 1;
+   /* background-color: hsl(var(--input));
+   border: 1px solid hsl(var(--border));
+   color: hsl(var(--foreground));
+   padding: 0.75rem;
+   border-radius: var(--radius); */
+}
+
+.sendButton {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  padding: 0.6rem; /* Quadrado */
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sendButton:hover:not(:disabled) {
+  background-color: hsl(var(--primary) / 0.9);
+}
+.sendButton:disabled {
+  background-color: hsl(var(--secondary));
+  cursor: not-allowed;
+}
+.sendButton svg {
+  width: 20px;
+  height: 20px;
+}

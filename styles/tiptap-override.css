@@ -1,0 +1,82 @@
+/* styles/tiptap-override.css */
+
+/* Estilo base para a área editável do TipTap */
+.ProseMirror {
+  outline: none; /* Remove outline padrão */
+  min-height: 200px; /* Altura mínima */
+  height: 100%;
+  padding: 0.5rem; /* Padding interno */
+  color: var(--text-color); /* Cor do texto principal */
+  caret-color: var(--primary-color); /* Cor do cursor */
+  line-height: 1.6;
+}
+
+/* Estilo do conteúdo dentro do editor */
+.prosemirror-editor-content > .ProseMirror {
+  /* Aplica estilos aqui se necessário, ex: font-family */
+  font-family: var(--gjs-font-family); /* Usar a variável de fonte */
+}
+
+/* Placeholder Text Style */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--text-color-muted); /* Cor do placeholder */
+  pointer-events: none;
+  height: 0;
+  font-style: italic;
+}
+
+/* Estilos básicos para elementos comuns */
+.ProseMirror h1,
+.ProseMirror h2,
+.ProseMirror h3 {
+  color: var(--text-color);
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+  text-shadow: var(--text-shadow-neon); /* Adiciona glow neon sutil */
+}
+.ProseMirror h1 { font-size: 1.8em; font-weight: 600; }
+.ProseMirror h2 { font-size: 1.5em; font-weight: 600; }
+.ProseMirror h3 { font-size: 1.25em; font-weight: 600; }
+
+.ProseMirror p {
+  margin-bottom: 0.75em;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75em;
+}
+.ProseMirror li > p { /* Remove margem extra em parágrafos dentro de listas */
+    margin-bottom: 0.25em;
+}
+
+.ProseMirror strong { font-weight: bold; }
+.ProseMirror em { font-style: italic; }
+.ProseMirror code { background-color: rgba(255,255,255,0.1); padding: 0.1em 0.3em; border-radius: 3px; font-family: monospace; }
+.ProseMirror pre { background: #0D0D0D; border-radius: 0.5rem; color: #FFF; font-family: 'JetBrainsMono', monospace; padding: 0.75rem 1rem; white-space: pre-wrap; }
+.ProseMirror blockquote { border-left: 3px solid var(--border-color); margin-left: 0; margin-right: 0; padding-left: 1rem; color: var(--text-color-muted); font-style: italic; }
+.ProseMirror hr { border: none; border-top: 1px solid var(--border-color); margin: 1rem 0; }
+
+/* Estilo Imagem */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  display: block; /* Imagens como blocos */
+  margin: 1rem auto; /* Centraliza com margem */
+  border-radius: var(--gjs-border-radius);
+  border: 1px solid var(--border-color);
+}
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 3px solid var(--primary-color); /* Outline neon ao selecionar */
+  filter: drop-shadow(var(--neon-glow-shadow-medium));
+}
+
+/* Scrollbar dentro do editor (se precisar de estilo diferente) */
+.editor-scroll-container::-webkit-scrollbar { width: 5px; height: 5px;}
+.editor-scroll-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px;}
+.editor-scroll-container::-webkit-scrollbar-thumb { background: var(--primary-color-muted); border-radius: 3px; }
+.editor-scroll-container::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }

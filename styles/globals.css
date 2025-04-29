@@ -1,0 +1,125 @@
+/* C:\Users\ADM\Desktop\v13-main\styles\globals.css */
+
+/* Importação de fontes no topo */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
+/* Diretivas essenciais do Tailwind CSS */
+/* Elas devem vir antes de quaisquer @layer customizadas */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* @tailwind variants; <-- Adicione se usar @layer variants */
+
+
+/* Camadas customizadas */
+@layer base {
+  /* === Dark Neumorphism Palette === */
+  :root {
+    --background: 220 10% 7%; --foreground: 210 15% 90%;
+    --element-bg: 220 10% 7%; --element-bg-raised: 220 10% 9%; --element-bg-inset: 220 10% 5%; --element-foreground: 210 15% 85%;
+    --popover-background: 220 10% 11%; --popover-foreground: 210 15% 85%;
+    --primary: 210 90% 60%; --primary-foreground: 210 20% 98%; /* Azul Neon Principal */
+    --accent: 215 20% 18%; --accent-foreground: 210 15% 90%;
+    --destructive: 0 70% 55%; --destructive-foreground: 0 0% 98%;
+    --muted: 215 15% 20%; --muted-foreground: 210 10% 55%;
+    --border: 220 10% 12%; --input-border: transparent; --ring: 210 90% 65%;
+    --radius: 0.75rem;
+    /* --- Neumorphic Shadow Variables --- */
+    --shadow-dark-source-hsl: 220 15% 3%; --shadow-light-source-hsl: 220 5% 15%;
+    --shadow-offset: 5px; --shadow-blur: 10px; --shadow-spread-outset: 1px; --shadow-spread-inset: 0px;
+    --neumorphic-shadow-outset: var(--shadow-offset) var(--shadow-offset) var(--shadow-blur) var(--shadow-spread-outset) hsl(var(--shadow-dark-source-hsl)), calc(-1 * var(--shadow-offset)) calc(-1 * var(--shadow-offset)) var(--shadow-blur) var(--shadow-spread-outset) hsl(var(--shadow-light-source-hsl));
+    --neumorphic-shadow-inset: inset calc(var(--shadow-offset) / 1.5) calc(var(--shadow-offset) / 1.5) calc(var(--shadow-blur) / 1.5) var(--shadow-spread-inset) hsl(var(--shadow-dark-source-hsl)), inset calc(-1 * var(--shadow-offset) / 1.5) calc(-1 * var(--shadow-offset) / 1.5) calc(var(--shadow-blur) / 1.5) var(--shadow-spread-inset) hsl(var(--shadow-light-source-hsl));
+    --neumorphic-shadow-pressed: inset calc(var(--shadow-offset) / 2) calc(var(--shadow-offset) / 2) calc(var(--shadow-blur) / 2) var(--shadow-spread-inset) hsl(var(--shadow-dark-source-hsl)), inset calc(-1 * var(--shadow-offset) / 2) calc(-1 * var(--shadow-offset) / 2) calc(var(--shadow-blur) / 2) var(--shadow-spread-inset) hsl(var(--shadow-light-source-hsl));
+    --neumorphic-text-shadow-dark: 1px 1px 1px hsl(var(--shadow-dark-source-hsl) / 0.5); --neumorphic-text-shadow-light: -1px -1px 1px hsl(var(--shadow-light-source-hsl) / 0.5);
+    --neumorphic-text-shadow: var(--neumorphic-text-shadow-dark), var(--neumorphic-text-shadow-light);
+    /* Chart Colors */
+    --chart-1: 210 90% 60%; --chart-2: 160 70% 50%; --chart-3: 45 90% 55%; --chart-4: 0 80% 65%; --chart-5: 260 75% 65%;
+    /* Sidebar Colors */
+    --sidebar-background: 224 12% 4%; --sidebar-foreground: 210 10% 75%; --sidebar-border: 224 10% 10%; --sidebar-accent: 220 15% 15%; --sidebar-accent-foreground: 210 15% 95%;
+    /* Glows */
+    --title-glow-color: hsl(var(--primary) / 0.5); --title-neon-shadow: 0 0 8px var(--title-glow-color);
+    --logo-glow-color: hsl(var(--primary) / 0.4); --logo-drop-shadow: 0 0 10px var(--logo-glow-color);
+    --neon-glow-shadow: 0 0 12px hsl(var(--primary) / 0.7);
+    --button-neon-glow-shadow: 0 0 8px hsl(var(--primary) / 0.6);
+  }
+
+  html, body { height: 100%; padding: 0; margin: 0; }
+  * { @apply border-transparent; box-sizing: border-box; }
+  body {
+    background-image: url('/img/background-dark-blue-circuit.png');
+    background-color: hsl(var(--background)); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;
+    @apply text-foreground; font-family: 'Montserrat', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+   }
+  *:focus-visible { @apply outline-none ring-2 ring-offset-2 ring-[hsl(var(--ring))] ring-offset-[hsl(var(--background))]; }
+  .neumorphic-text { text-shadow: var(--neumorphic-text-shadow); }
+}
+
+@layer components {
+  /* === Dark Neumorphic Base Components === */
+  .card { @apply bg-[hsl(var(--element-bg-raised))] rounded-xl shadow-[var(--neumorphic-shadow-outset)] text-[hsl(var(--element-foreground))] transition-shadow duration-200 ease-out; border: none; }
+  .card-interactive:hover { @apply brightness-[1.08] shadow-[var(--neumorphic-shadow-outset)]; }
+  .input, .textarea, .select-trigger-neumorphic { @apply bg-[hsl(var(--element-bg-inset))] rounded-lg shadow-[var(--neumorphic-shadow-inset)] text-foreground placeholder:text-muted-foreground border-none px-3 py-2 h-9 ring-offset-[hsl(var(--background))] transition-shadow duration-200 ease-out flex items-center; }
+  .textarea { @apply h-auto min-h-[60px]; }
+  .select-trigger-neumorphic { @apply justify-between; }
+  .button-neumorphic { @apply bg-[hsl(var(--element-bg))] rounded-lg shadow-[var(--neumorphic-shadow-outset)] text-foreground transition-all duration-150 ease-out px-4 py-2 h-9 text-sm font-semibold flex items-center justify-center gap-2; border: none; }
+  .button-neumorphic:hover:not(:disabled) { @apply brightness-110; }
+  .button-neumorphic:active:not(:disabled) { @apply bg-[hsl(var(--element-bg-inset))] shadow-[var(--neumorphic-shadow-pressed)] scale-[0.98] brightness-95; }
+  .button-neumorphic:disabled { @apply opacity-50 shadow-none cursor-not-allowed; }
+  .button-neumorphic-primary { @apply button-neumorphic bg-primary text-primary-foreground; }
+  .button-neumorphic-primary:hover:not(:disabled) { @apply bg-primary/90 brightness-110; }
+  .button-neumorphic-primary:active:not(:disabled) { @apply bg-primary/85 shadow-[var(--neumorphic-shadow-pressed)] scale-[0.98] brightness-95; }
+  .button { @apply shadow-none; }
+  .button[variant="outline"] { @apply border border-[hsl(var(--border))] bg-transparent hover:bg-accent hover:text-accent-foreground shadow-none h-9 px-4 py-2; background-color: transparent !important; }
+  .button[variant="ghost"] { @apply hover:bg-accent hover:text-accent-foreground shadow-none h-9 px-4 py-2; background-color: transparent !important; border: none !important; }
+  .button[variant="link"] { @apply shadow-none border-none; background-color: transparent !important; }
+  .tabs-trigger-neumorphic { @apply button-neumorphic data-[state=active]:shadow-[var(--neumorphic-shadow-pressed)] data-[state=active]:bg-[hsl(var(--element-bg-inset))] data-[state=active]:scale-[0.98] data-[state=active]:brightness-95 px-3 py-1.5 h-auto text-xs sm:text-sm; }
+  .sidebar-nav-button { @apply w-full h-10 text-sm font-medium flex items-center rounded-md bg-[hsl(var(--sidebar-background))] text-sidebar-foreground transition-all duration-150 ease-out; border: none; box-shadow: 2px 2px 4px hsl(var(--shadow-dark-source-hsl) / 0.5), -2px -2px 4px hsl(var(--shadow-light-source-hsl) / 0.5); }
+  .sidebar-nav-button:hover:not([data-active="true"]) { @apply bg-sidebar-accent text-sidebar-accent-foreground; }
+  .sidebar-nav-button[data-active="true"] { @apply bg-[hsl(var(--sidebar-background))] shadow-[var(--neumorphic-shadow-inset)] text-sidebar-accent-foreground font-semibold; }
+  .sidebar-nav-button svg { @apply transition-colors; }
+  .sidebar-nav-button[data-active="true"] svg { @apply text-primary; }
+  .group:hover .sidebar-nav-button svg:not([data-active="true"] svg) { @apply text-sidebar-accent-foreground/90; }
+  .sidebar-nav-button:not([data-active="true"]) svg { @apply text-sidebar-foreground/70; }
+  /* === Outros === */
+  .title-glow { text-shadow: var(--title-neon-shadow); }
+  .logo-shadow { filter: drop-shadow(var(--logo-drop-shadow)); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--background)); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 10px; border: 2px solid hsl(var(--background)); }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--accent)); }
+
+  /* === Estilos para Nós do React Flow === */
+  .node-card {
+    @apply !bg-[hsl(var(--element-bg-raised))] !border-[#3a7ebf]/40 text-white shadow-[var(--neumorphic-shadow-outset)] rounded-lg transition-shadow duration-200 ease-out;
+    min-width: 150px;
+  }
+  .node-card:hover {
+    box-shadow: var(--neumorphic-shadow-outset), var(--neon-glow-shadow);
+  }
+  .node-header { @apply flex flex-row items-center justify-between p-1.5 bg-[hsl(var(--element-bg))] border-b border-[#3a7ebf]/20 rounded-t-lg cursor-move; }
+  .node-header-icon-title { @apply flex items-center gap-1 text-[10px] font-medium text-white; }
+  .node-icon { @apply h-3 w-3 text-[#3a7ebf]; }
+  .node-add-button {
+      @apply button-neumorphic w-full justify-start text-[10px] h-7 px-2 py-1;
+      transition-property: box-shadow, background-color, color, brightness, transform;
+  }
+  .node-add-button:hover:not(:disabled) {
+      @apply brightness-110;
+      box-shadow: var(--neumorphic-shadow-outset), var(--button-neon-glow-shadow);
+      color: hsl(var(--primary-foreground) / 0.9);
+  }
+   .node-add-button:hover:not(:disabled) .node-add-icon {
+        @apply text-white;
+   }
+  .node-add-icon { @apply h-3 w-3 mr-2 text-[#3a7ebf]; }
+  .neo-inset { @apply input shadow-[var(--neumorphic-shadow-inset)] bg-[hsl(var(--element-bg-inset))] !border-none; }
+  .react-flow__handle { @apply !w-2 !h-2 !border-none !rounded-full; }
+  .react-flow__handle-connecting { @apply !bg-yellow-400; }
+  .react-flow__handle-valid { @apply !bg-green-400; }
+  .react-flow__edge path { @apply !stroke-primary; stroke-width: 1.5; }
+
+  /* Estilo para o botão de contexto (Exemplo) */
+  .context-menu-button { @apply w-full px-2 py-1.5 text-left text-xs rounded hover:bg-accent flex items-center gap-2; }
+  .context-menu-icon { @apply h-3.5 w-3.5; }
+
+}

@@ -1,0 +1,339 @@
+{
+  "assets": [
+    {
+      "type": "image",
+      "src": "/uploads/a1049221-eb13-43d0-ad7b-cb57599aaf53.jpg",
+      "unitDim": "px",
+      "height": 0,
+      "width": 0,
+      "id": "/uploads/a1049221-eb13-43d0-ad7b-cb57599aaf53.jpg"
+    },
+    {
+      "type": "image",
+      "src": "/uploads/0a82f21b-1dfe-45a4-b42c-9a5958dcc562.png",
+      "unitDim": "px",
+      "height": 0,
+      "width": 0,
+      "id": "/uploads/0a82f21b-1dfe-45a4-b42c-9a5958dcc562.png"
+    }
+  ],
+  "styles": [
+    {
+      "selectors": [],
+      "selectorsAdd": "body",
+      "style": {
+        "background-color": "#e7e7e7",
+        "font-family": "Arial, sans-serif"
+      }
+    },
+    {
+      "selectors": [
+        "head"
+      ],
+      "style": {
+        "padding": "50px 50px 35px"
+      }
+    },
+    {
+      "selectors": [
+        "logo"
+      ],
+      "style": {
+        "max-width": "250px",
+        "display": "block",
+        "margin": "0 auto"
+      }
+    },
+    {
+      "selectors": [
+        "card"
+      ],
+      "style": {
+        "max-width": "600px",
+        "padding": "40px 45px",
+        "background-color": "white",
+        "border-radius": "15px",
+        "margin": "0 auto",
+        "color": "#333333",
+        "font-size": "16px"
+      }
+    },
+    {
+      "selectors": [
+        "title"
+      ],
+      "style": {
+        "color": "#af4e8a",
+        "font-size": "24px",
+        "font-weight": "bold",
+        "margin": "0",
+        "text-align": "center"
+      }
+    },
+    {
+      "selectors": [
+        "subtitle"
+      ],
+      "style": {
+        "text-align": "center",
+        "margin": "0",
+        "padding": "25px 0"
+      }
+    },
+    {
+      "selectors": [
+        "paragraph"
+      ],
+      "style": {
+        "line-height": "1.5",
+        "margin-bottom": "40px"
+      }
+    },
+    {
+      "selectors": [
+        "link"
+      ],
+      "style": {
+        "color": "#af4e8a",
+        "text-decoration": "none",
+        "font-size": "13px"
+      }
+    },
+    {
+      "selectors": [
+        "footer"
+      ],
+      "style": {
+        "margin-top": "30px",
+        "text-align": "center"
+      }
+    },
+    {
+      "selectors": [
+        "#itr5j"
+      ],
+      "style": {
+        "display": "flex",
+        "justify-content": "center",
+        "background-color": "rgba(195, 56, 56, 1)",
+        "background-clip": "border-box",
+        "box-shadow": "0px 0px 5px 0px black inset",
+        "padding-top": "0px",
+        "padding-right": "0px",
+        "padding-bottom": "0px",
+        "padding-left": "0px",
+        "margin-top": "0px",
+        "margin-right": "0px",
+        "margin-bottom": "0px",
+        "margin-left": "0px",
+        "align-items": "flex-start"
+      },
+      "mediaText": "(max-width: 992px)",
+      "atRuleType": "media"
+    }
+  ],
+  "pages": [
+    {
+      "name": "Web",
+      "frames": [
+        {
+          "component": {
+            "type": "wrapper",
+            "components": [
+              {
+                "tagName": "header",
+                "classes": [
+                  "head"
+                ],
+                "components": [
+                  {
+                    "type": "image",
+                    "resizable": {
+                      "ratioDefault": 1
+                    },
+                    "classes": [
+                      "logo"
+                    ],
+                    "attributes": {
+                      "src": "https://app.grapesjs.com/docs-sdk/img/grapesjs-logo-black.svg",
+                      "alt": "GrapesJS Logo"
+                    }
+                  }
+                ]
+              },
+              {
+                "classes": [
+                  "card"
+                ],
+                "attributes": {
+                  "id": "i2ue"
+                },
+                "components": [
+                  {
+                    "type": "heading",
+                    "classes": [
+                      "title"
+                    ],
+                    "components": [
+                      {
+                        "type": "textnode",
+                        "content": "Welcome to GrapesJS Studio SDK!"
+                      }
+                    ]
+                  },
+                  {
+                    "tagName": "p",
+                    "type": "text",
+                    "classes": [
+                      "subtitle"
+                    ],
+                    "components": [
+                      {
+                        "type": "textnode",
+                        "content": "You're currently viewing the default fallback project for web."
+                      }
+                    ]
+                  },
+                  {
+                    "tagName": "p",
+                    "type": "text",
+                    "classes": [
+                      "paragraph"
+                    ],
+                    "components": [
+                      {
+                        "type": "textnode",
+                        "content": "\n          This appears because no storage has been configured yet. To set up your own storage, follow the guide here:\n          "
+                      },
+                      {
+                        "tagName": "br",
+                        "void": true
+                      },
+                      {
+                        "type": "textnode",
+                        "content": "\n          👉 "
+                      },
+                      {
+                        "type": "link",
+                        "classes": [
+                          "link"
+                        ],
+                        "attributes": {
+                          "href": "https://app.grapesjs.com/docs-sdk/configuration/projects#self-hosted-storage",
+                          "target": "_blank"
+                        },
+                        "components": [
+                          {
+                            "type": "textnode",
+                            "content": "https://app.grapesjs.com/docs-sdk/configuration/projects#self-hosted-storage"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tagName": "p",
+                    "type": "text",
+                    "classes": [
+                      "paragraph"
+                    ],
+                    "components": [
+                      {
+                        "type": "textnode",
+                        "content": "\n          Want to customize the fallback project? You can do so by setting options.project.default. Learn more here:\n          "
+                      },
+                      {
+                        "tagName": "br",
+                        "void": true
+                      },
+                      {
+                        "type": "textnode",
+                        "content": "\n          👉 "
+                      },
+                      {
+                        "type": "link",
+                        "classes": [
+                          "link"
+                        ],
+                        "attributes": {
+                          "href": "https://app.grapesjs.com/docs-sdk/configuration/projects#setup",
+                          "target": "_blank"
+                        },
+                        "components": [
+                          {
+                            "type": "textnode",
+                            "content": "https://app.grapesjs.com/docs-sdk/configuration/projects#setup"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tagName": "footer",
+                    "type": "text",
+                    "classes": [
+                      "footer"
+                    ],
+                    "attributes": {
+                      "id": "ijsfn"
+                    },
+                    "components": [
+                      {
+                        "type": "textnode",
+                        "content": "Happy building! 🚀"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "image",
+                    "resizable": {
+                      "ratioDefault": 1
+                    },
+                    "attributes": {
+                      "src": "/uploads/0a82f21b-1dfe-45a4-b42c-9a5958dcc562.png",
+                      "id": "itr5j"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "image",
+                "resizable": {
+                  "ratioDefault": 1
+                },
+                "attributes": {
+                  "src": "/uploads/0a82f21b-1dfe-45a4-b42c-9a5958dcc562.png",
+                  "id": "ixfen"
+                }
+              },
+              {
+                "type": "image",
+                "resizable": {
+                  "ratioDefault": 1
+                },
+                "attributes": {
+                  "src": "/uploads/a1049221-eb13-43d0-ad7b-cb57599aaf53.jpg",
+                  "id": "io64f"
+                }
+              }
+            ],
+            "head": {
+              "type": "head"
+            },
+            "docEl": {
+              "tagName": "html"
+            }
+          },
+          "id": "K4xEnjtLqz2sadAm"
+        }
+      ],
+      "id": "TYoQiRAXqMzWXgQI"
+    }
+  ],
+  "symbols": [],
+  "dataSources": [],
+  "custom": {
+    "projectType": "web",
+    "id": ""
+  }
+}

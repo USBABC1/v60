@@ -1,197 +1,174 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  ReactNode,
-} from 'react';
+// context/MCPAgentContext.tsx
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { ChatCompletionMessageParam } from 'groq-sdk/resources/chat/completions';
+import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
-import { Message } from '@/types/chat'; // Importe a interface Message
 
 interface MCPAgentContextType {
-  messages: Message[];
-  input: string;
-  handleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
-  isLoading: boolean;
-  error: Error | null;
-  isHistoryLoading: boolean;
-  loadHistory: () => Promise<void>;
-  clearHistory: () => void;
-  saveConversation: (name: string) => Promise<void>;
-  loadSavedConversation: (id: number) => Promise<void>;
-  savedConversations: { id: number; name: string; created_at: string }[];
-  deleteConversation: (id: number) => Promise<void>;
+  isAgentOpen: boolean;
+  setIsAgentOpen: (isOpen: boolean) => void;
+  conversationHistory: ChatCompletionMessageParam[];
+  setConversationHistory: (history: ChatCompletionMessageParam[]) => void;
+  sessionId: string;
+  resetConversation: () => void;
+  saveConversation: (name: string) => Promise<boolean>;
+  loadConversation: (sessionId: string) => Promise<void>;
+  getSavedConversations: () => Promise<{ id: number; session_id: string; name: string; }[]>;
+  deleteSavedConversation: (sessionId: string) => Promise<boolean>;
 }
 
-const MCPAgentContext = createContext<MCPAgentContextType | undefined>(
-  undefined
-);
+const MCPAgentContext = createContext<MCPAgentContextType | undefined>(undefined);
 
-export const MCPAgentProvider = ({ children }: { children: ReactNode }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
-  const [savedConversations, setSavedConversations] = useState<
-    { id: number; name: string; created_at: string }[]
-  >([]);
+export const MCPAgentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [isAgentOpen, setIsAgentOpen] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<ChatCompletionMessageParam[]>([]);
+  const [sessionId, setSessionId] = useState<string>(uuidv4());
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInput(event.target.value);
+  // Carregar histórico da sessão ao iniciar
+  useEffect(() => {
+    const loadSessionHistory = async () => {
+      const savedSessionId = localStorage.getItem('mcpAgentSessionId');
+      if (savedSessionId) {
+        setSessionId(savedSessionId);
+        try {
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/mcp-history?sessionId=${savedSessionId}`);
+          if (response.data && response.data.history) {
+            setConversationHistory(response.data.history);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar histórico da sessão:', error);
+          // Se falhar, iniciar uma nova sessão
+          resetConversation();
+        }
+      } else {
+        localStorage.setItem('mcpAgentSessionId', sessionId);
+      }
+    };
+    loadSessionHistory();
+  }, []); // Executa apenas uma vez ao montar
+
+  // Salvar histórico da sessão no localStorage (opcional, para persistência básica entre recargas)
+  useEffect(() => {
+    if (conversationHistory.length > 0) {
+       // Salvamento no localStorage pode ser pesado para histórico longo.
+       // Considere salvar apenas o sessionId ou usar IndexedDB/API de backend para persistência real.
+       // localStorage.setItem(`mcpAgentHistory_${sessionId}`, JSON.stringify(conversationHistory));
+    }
+  }, [conversationHistory, sessionId]);
+
+
+  const resetConversation = () => {
+    const newSessionId = uuidv4();
+    setSessionId(newSessionId);
+    setConversationHistory([]);
+    localStorage.setItem('mcpAgentSessionId', newSessionId);
+    // Limpar histórico antigo do localStorage se estiver sendo usado
+    // const oldSessionId = localStorage.getItem('mcpAgentSessionId');
+    // if (oldSessionId) localStorage.removeItem(`mcpAgentHistory_${oldSessionId}`);
   };
 
-  const processMessage = useCallback(async (userMessage: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    const newMessage: Message = {
-      id: Math.random().toString(36).substring(7),
-      role: 'user',
-      content: userMessage,
-    };
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setInput('');
-
-    try {
-      const response = await axios.post('/api/mcp-agent', {
-        message: userMessage,
-        history: messages.map((msg) => ({
-          role: msg.role,
-          content: msg.content,
-        })),
-      });
-
-      const agentResponse: Message = {
-        id: Math.random().toString(36).substring(7),
-        role: 'assistant',
-        content: response.data.reply,
-      };
-      setMessages((prevMessages) => [...prevMessages, agentResponse]);
-    } catch (err) {
-      console.error('Error sending message to MCP Agent:', err);
-      setError(err as Error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          id: Math.random().toString(36).substring(7),
-          role: 'assistant',
-          content: 'Desculpe, ocorreu um erro ao processar sua solicitação.',
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [messages]); // Adicione messages como dependência para que o histórico seja atualizado
-
-  const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      if (input.trim()) {
-        await processMessage(input);
-      }
-    },
-    [input, processMessage]
-  );
-
-  const loadHistory = useCallback(async () => {
-    setIsHistoryLoading(true);
-    try {
-      const historyResponse = await axios.get('/api/mcp-history');
-      setMessages(historyResponse.data.history);
-      const savedResponse = await axios.get('/api/mcp-saved-conversations');
-      setSavedConversations(savedResponse.data.conversations);
-    } catch (err) {
-      console.error('Error loading MCP history:', err);
-      // Opcional: setError para exibir no frontend
-    } finally {
-      setIsHistoryLoading(false);
-    }
-  }, []); // Sem dependências, pois carrega o estado inicial
-
-  const clearHistory = useCallback(async () => {
-    setIsHistoryLoading(true);
-    try {
-      await axios.delete('/api/mcp-history');
-      setMessages([]);
-    } catch (err) {
-      console.error('Error clearing MCP history:', err);
-      // Opcional: setError
-    } finally {
-      setIsHistoryLoading(false);
-    }
-  }, []); // Sem dependências
-
-  const saveConversation = useCallback(
-    async (name: string) => {
-      if (messages.length === 0) return;
+  const saveConversation = async (name: string): Promise<boolean> => {
       try {
-        await axios.post('/api/mcp-saved-conversations', { name, messages });
-        // Recarregar lista de conversas salvas após salvar
-        const savedResponse = await axios.get('/api/mcp-saved-conversations');
-        setSavedConversations(savedResponse.data.conversations);
-      } catch (err) {
-        console.error('Error saving conversation:', err);
-        // Opcional: setError
+          const token = localStorage.getItem('token'); // Assumindo que o token está no localStorage
+          if (!token) {
+              console.error("Usuário não autenticado.");
+              return false;
+          }
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/mcp-saved-conversations`, {
+              sessionId: sessionId,
+              name: name,
+              history: conversationHistory // Salva o histórico junto
+          }, {
+              headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log("Conversa salva:", response.data);
+          return true;
+      } catch (error: any) {
+          console.error("Erro ao salvar conversa:", error.response?.data || error.message);
+          return false;
       }
-    },
-    [messages]
-  ); // Depende de messages
+  };
 
-  const loadSavedConversation = useCallback(async (id: number) => {
-    setIsHistoryLoading(true);
-    try {
-      const response = await axios.get(`/api/mcp-saved-conversations/${id}`);
-      setMessages(response.data.conversation.messages);
-    } catch (err) {
-      console.error('Error loading saved conversation:', err);
-      // Opcional: setError
-    } finally {
-      setIsHistoryLoading(false);
-    }
-  }, []); // Sem dependências específicas além do ID
+  const loadConversation = async (targetSessionId: string): Promise<void> => {
+      try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+              console.error("Usuário não autenticado.");
+              return;
+          }
+          const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/mcp-saved-conversations/${targetSessionId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.data && response.data.history) {
+              setSessionId(targetSessionId);
+              setConversationHistory(response.data.history);
+              localStorage.setItem('mcpAgentSessionId', targetSessionId); // Define como sessão ativa
+              console.log(`Conversa '${response.data.name}' carregada.`);
+          }
+      } catch (error: any) {
+          console.error("Erro ao carregar conversa:", error.response?.data || error.message);
+          // Opcional: resetar para nova conversa em caso de falha
+          // resetConversation();
+      }
+  };
 
-  const deleteConversation = useCallback(async (id: number) => {
-    try {
-      await axios.delete(`/api/mcp-saved-conversations/${id}`);
-      // Remover da lista local após excluir
-      setSavedConversations(prev => prev.filter(conv => conv.id !== id));
-    } catch (err) {
-      console.error('Error deleting conversation:', err);
-      // Opcional: setError
-    }
-  }, []); // Sem dependências específicas além do ID
+  const getSavedConversations = async (): Promise<{ id: number; session_id: string; name: string; }[]> => {
+       try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error("Usuário não autenticado.");
+                return [];
+            }
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/mcp-saved-conversations`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            return response.data.conversations || [];
+       } catch (error: any) {
+           console.error("Erro ao buscar conversas salvas:", error.response?.data || error.message);
+           return [];
+       }
+  };
+
+  const deleteSavedConversation = async (targetSessionId: string): Promise<boolean> => {
+      try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+              console.error("Usuário não autenticado.");
+              return false;
+          }
+          await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/mcp-saved-conversations/${targetSessionId}`, {
+               headers: { Authorization: `Bearer ${token}` }
+          });
+          console.log(`Conversa salva com session_id ${targetSessionId} deletada.`);
+          // Se a conversa deletada for a sessão ativa, resetar
+          if (sessionId === targetSessionId) {
+              resetConversation();
+          }
+          return true;
+      } catch (error: any) {
+          console.error("Erro ao deletar conversa salva:", error.response?.data || error.message);
+          return false;
+      }
+  };
 
 
   return (
-    <MCPAgentContext.Provider
-      value={{
-        messages,
-        input,
-        handleInputChange,
-        handleSubmit,
-        isLoading,
-        error,
-        isHistoryLoading,
-        loadHistory,
-        clearHistory,
-        saveConversation,
-        loadSavedConversation,
-        savedConversations,
-        deleteConversation,
-      }}
-    >
+    <MCPAgentContext.Provider value={{
+      isAgentOpen, setIsAgentOpen,
+      conversationHistory, setConversationHistory,
+      sessionId, resetConversation,
+      saveConversation, loadConversation, getSavedConversations, deleteSavedConversation
+    }}>
       {children}
     </MCPAgentContext.Provider>
   );
 };
 
-// Hook para usar o contexto
-export const useMCPAgent = () => {
+// Hook customizado para usar o contexto
+export const useMCPAgentContext = () => {
   const context = useContext(MCPAgentContext);
   if (context === undefined) {
-    throw new Error('useMCPAgent must be used within a MCPAgentProvider');
+    throw new Error('useMCPAgentContext must be used within a MCPAgentProvider');
   }
   return context;
 };

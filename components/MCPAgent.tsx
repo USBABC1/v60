@@ -2,16 +2,16 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useMCPAgentContext } from '@/context/MCPAgentContext'; // Importação corrigida
+import { useMCPAgentContext } from '@/context/MCPAgentContext';
 import { useState, useRef, useEffect } from 'react';
 import ChatMessage from './ChatMessage';
 import { Message } from '@/types/chat';
-import { Loader2, Send, Trash2, Save, FolderOpen } from 'lucide-react'; // Importar ícones necessários
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'; // Importar componentes de diálogo
+import { Loader2, Send, Trash2, Save, FolderOpen } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea'; // Usar Textarea para input de prompt
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'; // Para lista de conversas salvas
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'; // Para lista de conversas salvas
+import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList } from '@/components/ui/command';
 
 const MCPAgent: React.FC = () => {
   const {
@@ -25,7 +25,7 @@ const MCPAgent: React.FC = () => {
     loadConversation,
     getSavedConversations,
     deleteSavedConversation
-  } = useMCPAgentContext(); // Usar o hook com o nome correto
+  } = useMCPAgentContext();
 
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -37,10 +37,10 @@ const MCPAgent: React.FC = () => {
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
 
-  const scrollAreaRef = useRef<HTMLDivAreaElement>(null);
+  // CORREÇÃO: Alterar HTMLDivAreaElement para HTMLDivElement
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Scroll para o final quando o histórico muda
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
@@ -94,7 +94,7 @@ const MCPAgent: React.FC = () => {
 
   const handleSaveClick = () => {
       setSaveDialogOpen(true);
-      setSaveName(`Conversa ${new Date().toLocaleString()}`); // Sugere um nome padrão
+      setSaveName(`Conversa ${new Date().toLocaleString()}`);
   };
 
   const handleConfirmSave = async () => {
@@ -107,7 +107,6 @@ const MCPAgent: React.FC = () => {
           setSaveName('');
       } else {
           console.error("Falha ao salvar conversa.");
-          // Exibir erro na UI se necessário
       }
       setIsLoading(false);
   };
@@ -138,7 +137,6 @@ const MCPAgent: React.FC = () => {
       const success = await deleteSavedConversation(sessionToDelete);
       if (success) {
           console.log(`Conversa ${sessionToDelete} deletada.`);
-          // Atualizar a lista de conversas salvas após deletar
           const updatedConversations = savedConversations.filter(conv => conv.session_id !== sessionToDelete);
           setSavedConversations(updatedConversations);
       } else {
@@ -183,7 +181,7 @@ const MCPAgent: React.FC = () => {
                                         <Trash2
                                             className="h-4 w-4 text-red-400 hover:text-red-500 ml-2"
                                             onClick={(e) => {
-                                                e.stopPropagation(); // Evita que o item da lista seja selecionado
+                                                e.stopPropagation();
                                                 handleDeleteClick(conv.session_id);
                                             }}
                                         />
@@ -227,14 +225,13 @@ const MCPAgent: React.FC = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
           rows={1}
-          maxRows={4} // Limita o crescimento da área de texto
+          maxRows={4}
         />
         <Button onClick={handleSend} disabled={input.trim() === '' || isLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
           <Send className="h-5 w-5" />
         </Button>
       </div>
 
-      {/* Diálogo para salvar conversa */}
       <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
           <DialogContent className="bg-gray-800 text-white border border-gray-700">
               <DialogHeader>
@@ -266,7 +263,6 @@ const MCPAgent: React.FC = () => {
           </DialogContent>
       </Dialog>
 
-       {/* Diálogo de confirmação de exclusão */}
        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <DialogContent className="bg-gray-800 text-white border border-gray-700">
                 <DialogHeader>

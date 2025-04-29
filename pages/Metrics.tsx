@@ -12,8 +12,8 @@ import {
 } from 'recharts';
 import {
     RefreshCw, BarChart2, PieChart as PieChartIcon, LineChart as LineChartIcon,
-    Loader2, AlertTriangle, Calendar as CalendarIcon, DollarSign, TrendingUp, Activity, ArrowUpCircle, Users, MousePointerClick, ShoppingCart, Maximize2, Minimize2
-} from 'lucide-react'; // Adicionado MousePointerClick, ShoppingCart, Activity se usados com StatCard
+    Loader2, AlertTriangle, Calendar as CalendarIcon, DollarSign, TrendingUp, Activity, ArrowUpCircle, Users, MousePointerClick, ShoppingCart, Maximize2, Minimize2 // Adicionado Maximize2, Minimize2
+} from 'lucide-react';
 import { format, subDays, parseISO, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -109,13 +109,13 @@ const formatMetricValue = (metricKey: string, value: any): string => {
 
     const lowerMetricKey = metricKey.toLowerCase();
 
-    if (lowerMetricKey.includes('click') || lowerMetricKey.includes('impression') || lowerMetricKey.includes('conversion') || lowerMetricKey.includes('users') || lowerMetricKey.includes('leads')) {
+    if (lowerMetricKey.includes('click') || lowerMetricKey.includes('impression') || lowerMetricKey.includes('conversion')) {
         return numValue.toLocaleString('pt-BR', { maximumFractionDigits: 0 });
     }
     if (lowerMetricKey.includes('ctr') || lowerMetricKey.includes('rate') || lowerMetricKey.includes('roi')) {
         return `${numValue.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`; // Uma casa decimal para %
     }
-    if (lowerMetricKey.includes('cpc') || lowerMetricKey.includes('cost') || lowerMetricKey.includes('revenue') || lowerMetricKey.includes('budget') || lowerMetricKey.includes('ltv') || lowerMetricKey.includes('ticket')) {
+    if (lowerMetricKey.includes('cpc') || lowerMetricKey.includes('cost') || lowerMetricKey.includes('revenue')) {
         return `R$ ${numValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
     return numValue.toLocaleString('pt-BR', { maximumFractionDigits: 1 }); // Padrão com uma casa decimal
@@ -159,7 +159,7 @@ export default function MetricsPageV2() { // Nome diferente para evitar conflito
     const { toast } = useToast();
 
     // --- Estilos (Reutilizando do projeto) ---
-    const neonColor = '#1E90FF'; // Usar a cor neon diretamente ou importar NEON_COLOR se preferir
+    const neonColor = '#1E90FF';
     const cardStyle = "bg-[#141414]/80 backdrop-blur-sm shadow-[5px_5px_10px_rgba(0,0,0,0.4),-5px_-5px_10px_rgba(255,255,255,0.05)] rounded-lg border-none";
     const neumorphicInputStyle = "bg-[#141414] text-white shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3),inset_-2px_-2px_4px_rgba(255,255,255,0.05)] placeholder:text-gray-500 border-none focus:ring-2 focus:ring-[#1E90FF] focus:ring-offset-2 focus:ring-offset-[hsl(var(--background))]";
     const neumorphicButtonStyle = "bg-[#141414] border-none text-white shadow-[3px_3px_6px_rgba(0,0,0,0.3),-3px_-3px_6px_rgba(255,255,255,0.05)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.3),inset_-2px_-2px_4px_rgba(255,255,255,0.05)] hover:bg-[#1E90FF]/80 active:scale-[0.98] active:brightness-95 transition-all duration-150 ease-out";
@@ -515,12 +515,12 @@ export default function MetricsPageV2() { // Nome diferente para evitar conflito
                     {!loading && !refreshing && keyMetrics && (
                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                             {/* Adapte quais métricas mostrar aqui */}
-                            <StatCard label="Custo Total" value={formatMetricValue('cost', keyMetrics.cost)} icon={DollarSign} iconColorClass='text-red-400' isLoading={refreshing} isCompact={true} />
-                            <StatCard label="Receita Total" value={formatMetricValue('revenue', keyMetrics.revenue)} icon={DollarSign} iconColorClass='text-green-400' isLoading={refreshing} isCompact={true} />
-                            <StatCard label="ROI" value={formatMetricValue('roi', keyMetrics.roi)} icon={TrendingUp} iconColorClass='text-blue-400' isLoading={refreshing} isCompact={true} />
-                            <StatCard label="Cliques" value={formatMetricValue('clicks', keyMetrics.clicks)} icon={MousePointerClick} isLoading={refreshing} isCompact={true} />
-                            <StatCard label="Conversões" value={formatMetricValue('conversions', keyMetrics.conversions)} icon={ShoppingCart} iconColorClass='text-emerald-400' isLoading={refreshing} isCompact={true} />
-                            <StatCard label="Custo/Conv." value={formatMetricValue('costPerConversion', keyMetrics.costPerConversion)} icon={Activity} iconColorClass='text-purple-400' isLoading={refreshing} isCompact={true} />
+                            <StatCard title="Custo Total" value={formatMetricValue('cost', keyMetrics.cost)} icon={DollarSign} iconColorClass='text-red-400' isLoading={refreshing} isCompact={true} />
+                            <StatCard title="Receita Total" value={formatMetricValue('revenue', keyMetrics.revenue)} icon={DollarSign} iconColorClass='text-green-400' isLoading={refreshing} isCompact={true} />
+                            <StatCard title="ROI" value={formatMetricValue('roi', keyMetrics.roi)} icon={TrendingUp} iconColorClass='text-blue-400' isLoading={refreshing} isCompact={true} />
+                            <StatCard title="Cliques" value={formatMetricValue('clicks', keyMetrics.clicks)} icon={MousePointerClick} isLoading={refreshing} isCompact={true} />
+                            <StatCard title="Conversões" value={formatMetricValue('conversions', keyMetrics.conversions)} icon={ShoppingCart} iconColorClass='text-emerald-400' isLoading={refreshing} isCompact={true} />
+                            <StatCard title="Custo/Conv." value={formatMetricValue('costPerConversion', keyMetrics.costPerConversion)} icon={Activity} iconColorClass='text-purple-400' isLoading={refreshing} isCompact={true} />
                          </div>
                      )}
 

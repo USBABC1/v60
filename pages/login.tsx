@@ -1,21 +1,18 @@
 // pages/login.tsx
 import React from 'react';
 import Head from 'next/head';
-import { LoginRegisterForm } from '@/components/LoginRegisterForm'; // Importa o formulário com chaves
+import LoginRegisterForm from '@/components/LoginRegisterForm'; // Importa o formulário
 import { cn } from "@/lib/utils"; // Para o background
 
-const LoginPage: React.FC = () => {
+// Esta página NÃO usa o Layout principal da aplicação
+export default function LoginPage() {
   return (
-    <>
-      <Head>
-        <title>Login | USBMKT</title>
-        <meta name="description" content="Faça login ou registre-se no USBMKT" />
+    <div className="flex items-center justify-center min-h-screen bg-background"> {/* Usa cor de fundo global */}
+       <Head>
+         <title>Login / Registro - USBMKT</title>
+         <meta name="description" content="Acesse ou crie sua conta USBMKT" />
       </Head>
-      <main className={cn("flex min-h-screen items-center justify-center p-4", "bg-gray-900")}>
-        <LoginRegisterForm />
-      </main>
-    </>
+      <LoginRegisterForm /> {/* Renderiza apenas o formulário */}
+    </div>
   );
-};
-
-export default LoginPage;
+}

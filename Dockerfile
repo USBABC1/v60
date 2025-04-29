@@ -19,21 +19,18 @@ RUN apk add --no-cache python3 build-base pkgconfig cairo-dev pango-dev libjpeg-
 # Adicionar fontes para chartjs-node-canvas
 RUN apk add --no-cache fontconfig ttf-dejavu
 
-# Instalar TODAS as dependências primeiro (incluindo devDependencies)
-# Isso garante que 'typescript' esteja disponível para npx tsc
+# Instalar TODAS as dependências (incluindo devDependencies)
 RUN npm install --legacy-peer-deps
 
 # 6. Copiar o resto do código da aplicação
 COPY . .
 
 # 7. Compilar o script de inicialização do banco de dados
-# Compila o init-db.ts para init-db.js usando o TypeScript instalado nas dependências
-# O 'typescript' agora está disponível porque npm install foi executado sem --omit=dev
-RUN npx tsc --skipLibCheck true ./init-db.ts
+# Compila o init-db.ts para init-db.js executando o tsc diretamente do node_modules
+RUN ./node_modules/.bin/tsc --skipLibCheck true ./init-db.ts
 
 # 8. Construir a Aplicação Next.js
 # O Railway pode montar caches aqui automaticamente se detectar o RUN
-# O build do Next.js (npm run build) irá otimizar e pode omitir devDependencies para a imagem final se configurado corretamente
 RUN npm run build
 
 # 9. Porta padrão do Next.js

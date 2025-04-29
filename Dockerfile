@@ -26,8 +26,8 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # 7. Compilar o script de inicialização do banco de dados
-# Compila o init-db.ts para init-db.js executando o tsc diretamente do node_modules
-RUN ./node_modules/.bin/tsc --skipLibCheck true ./init-db.ts
+# Compila o init-db.ts para init-db.js usando npx tsc
+RUN npx tsc --skipLibCheck true ./init-db.ts
 
 # 8. Construir a Aplicação Next.js
 # O Railway pode montar caches aqui automaticamente se detectar o RUN

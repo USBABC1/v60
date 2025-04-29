@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
 
 export function LoginRegisterForm() {
   const [activeTab, setActiveTab] = useState("login");
@@ -30,11 +31,27 @@ export function LoginRegisterForm() {
     setLoginError("");
     setIsLoading(true);
     try {
-      // CORREÇÃO: Passar username e password como um objeto, conforme esperado pelo AuthContext
-      await login({ username: loginUsername, password: loginPassword });
+      const response = await axios.post("/api/auth/login", {
+        username: loginUsername,
+        password: loginPassword,
+      });
+
+      const data = response.data;
+
+      if (!data || !data.token) {
+          throw new Error("Resposta da API de login inválida.");
+      }
+
+      // CORREÇÃO: Passar apenas o token para a função login do AuthContext
+      await login(data.token);
+
+      // Redirecionar após login bem-sucedido
       router.push("/");
+
     } catch (error: any) {
-      setLoginError(error.message || "Login failed.");
+      console.error("Erro ao tentar login:", error.response?.data || error.message);
+      // Exibir mensagem de erro específica se disponível, caso contrário, uma genérica
+      setLoginError(error.response?.data?.error || error.message || "Login failed.");
     } finally {
         setIsLoading(false);
     }
@@ -61,7 +78,8 @@ export function LoginRegisterForm() {
       setRegisterSuccess(data.message || "Usuário registrado com sucesso! Por favor, confirme seu e-mail.");
 
     } catch (error: any) {
-      setRegisterError(error.message || "Registration failed.");
+      console.error("Erro ao tentar registrar:", error.response?.data || error.message);
+      setRegisterError(error.response?.data?.error || error.message || "Registration failed.");
     } finally {
         setIsLoading(false);
     }

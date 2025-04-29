@@ -1,159 +1,149 @@
 // components/LoginRegisterForm.tsx
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/router";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/context/AuthContext";
+
+import React, { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import axios, { AxiosError } from 'axios';
+import { Loader2 } from 'lucide-react';
+import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-import axios from "axios";
 
-export function LoginRegisterForm() {
-  const [activeTab, setActiveTab] = useState("login");
-  const [loginUsername, setLoginUsername] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
-  const [registerUsername, setRegisterUsername] = useState("");
-  const [registerEmail, setRegisterEmail] = useState("");
-  const [registerPassword, setRegisterPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [registerError, setRegisterError] = useState("");
-  const [registerSuccess, setRegisterSuccess] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+export default function LoginRegisterForm() {
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // <<< Adicionado estado para email
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // --- Estilos (mantidos como antes) ---
+  const neonColor = '#1E90FF';
+  const neonRedColor = '#FF4444';
+  const cardStyle = "bg-[#141414]/90 backdrop-blur-sm border border-slate-700/50 shadow-xl";
+  const inputStyle = "bg-slate-800/50 border-slate-700/80 text-white focus:ring-2 focus:ring-[#1E90FF] focus:ring-offset-2 focus:ring-offset-[#0e1015] focus:border-[#1E90FF]/50 h-9 placeholder:text-slate-500";
+  const buttonStyle = "bg-gradient-to-r from-[#1E90FF] to-[#4682B4] hover:from-[#4682B4] hover:to-[#1E90FF] text-white h-10 font-semibold shadow-[0_2px_8px_rgba(30,144,255,0.4)] transition-all duration-200 ease-out transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none";
+  const linkButtonStyle = "text-xs text-slate-400 hover:text-[#1E90FF] hover:underline";
+  const labelStyle = "text-sm text-slate-300";
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError("");
-    setIsLoading(true);
+    setError('');
+    setLoading(true);
+    console.log('[Login Form] Iniciando submissão de login...');
     try {
-      const response = await axios.post("/api/auth/login", {
-        username: loginUsername,
-        password: loginPassword,
-      });
+      // <<< CORREÇÃO: Enviar 'username', não 'email' para a API de login >>>
+      // A API de login foi corrigida para aceitar 'username'
+      const response = await axios.post('/api/login', { username, password });
+      console.log('[Login Form] Resposta da API de login:', response.status, response.data);
 
-      const data = response.data;
-
-      if (!data || !data.token) {
-          throw new Error("Resposta da API de login inválida.");
+      if (response.data.token) {
+        toast({ title: "Sucesso!", description: response.data.message || "Login realizado." });
+        console.log('[Login Form] Chamando login() do AuthContext...');
+        login(response.data.token);
+      } else {
+         console.error('[Login Form] Resposta da API sem token.');
+         throw new Error(response.data.message || "Resposta inválida da API de login.");
       }
 
-      // CORREÇÃO: Passar apenas o token para a função login do AuthContext
-      await login(data.token);
-
-      // Redirecionar após login bem-sucedido
-      router.push("/");
-
-    } catch (error: any) {
-      console.error("Erro ao tentar login:", error.response?.data || error.message);
-      // Exibir mensagem de erro específica se disponível, caso contrário, uma genérica
-      setLoginError(error.response?.data?.error || error.message || "Login failed.");
-    } finally {
-        setIsLoading(false);
+    } catch (err: unknown) {
+      let errMsg = 'Falha na comunicação com o servidor.';
+      if (axios.isAxiosError(err)) {
+          errMsg = err.response?.data?.message || err.message || errMsg;
+          console.error('[Login Form] Erro Axios no login:', err.response?.status, err.response?.data || err.message);
+      } else if (err instanceof Error) {
+          errMsg = err.message || errMsg;
+           console.error('[Login Form] Erro JS no login:', err.message);
+      } else {
+          console.error('[Login Form] Erro desconhecido no login:', err);
+      }
+      setError(errMsg);
+      toast({ title: "Erro de Login", description: errMsg, variant: "destructive" });
+      setLoading(false);
     }
+    // Não definir setLoading(false) aqui em caso de sucesso, o redirecionamento acontece
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegisterError("");
-    setRegisterSuccess("");
-    setIsLoading(true);
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); setError('');
+    if (password !== confirmPassword) { setError('As senhas não coincidem.'); return; }
+    if (password.length < 6) { setError('A senha deve ter pelo menos 6 caracteres.'); return; }
+    if (username.length < 3) { setError('O nome de usuário deve ter pelo menos 3 caracteres.'); return; }
+    // <<< CORREÇÃO: Adiciona validação de email no frontend >>>
+    if (!email || !/\S+@\S+\.\S+/.test(email)) { setError('Email inválido.'); return; }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) { setError('Nome de usuário inválido (letras, números, _).'); return; }
+    setLoading(true);
+    console.log('[Register Form] Iniciando submissão de registro...');
     try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: registerUsername, email: registerEmail, password: registerPassword }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Registration failed.");
-      }
-
-      setRegisterSuccess(data.message || "Usuário registrado com sucesso! Por favor, confirme seu e-mail.");
-
-    } catch (error: any) {
-      console.error("Erro ao tentar registrar:", error.response?.data || error.message);
-      setRegisterError(error.response?.data?.error || error.message || "Registration failed.");
+      // <<< CORREÇÃO: Enviar 'email' junto com username e password >>>
+      const response = await axios.post('/api/register', { username, email, password });
+      console.log('[Register Form] Resposta da API de registro:', response.status, response.data);
+      toast({ title: "Sucesso!", description: response.data.message || "Conta criada. Faça login." });
+      setIsRegistering(false);
+      setPassword(''); setConfirmPassword(''); setError(''); setEmail(''); // Limpa email também
+    } catch (err: unknown) {
+        let errMsg = 'Falha no registro.';
+        if (axios.isAxiosError(err)) {
+             errMsg = err.response?.data?.message || err.message || errMsg;
+             console.error('[Register Form] Erro Axios no registro:', err.response?.status, err.response?.data || err.message);
+        } else if (err instanceof Error) {
+             errMsg = err.message || errMsg;
+             console.error('[Register Form] Erro JS no registro:', err.message);
+        } else {
+             console.error('[Register Form] Erro desconhecido no registro:', err);
+        }
+      setError(errMsg);
+      toast({ title: "Erro de Registro", description: errMsg, variant: "destructive" });
     } finally {
-        setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="login">Login</TabsTrigger>
-        <TabsTrigger value="register">Register</TabsTrigger>
-      </TabsList>
-      <TabsContent value="login">
-        <Card className={cn("bg-gray-800 text-white border-gray-700")}>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>
-              Enter your username and password to access your account.
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleLogin}>
-            <CardContent className="space-y-2">
-              <div className="space-y-1">
-                <Label htmlFor="loginUsername">Username</Label>
-                <Input id="loginUsername" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} required className={cn("bg-gray-700 border-gray-600 text-white focus:border-blue-500")} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="loginPassword">Password</Label>
-                <Input id="loginPassword" type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required className={cn("bg-gray-700 border-gray-600 text-white focus:border-blue-500")} />
-              </div>
-              {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className={cn("w-full bg-blue-600 hover:bg-blue-700 text-white")} disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Login
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </TabsContent>
-      <TabsContent value="register">
-        <Card className={cn("bg-gray-800 text-white border-gray-700")}>
-          <CardHeader>
-            <CardTitle>Register</CardTitle>
-            <CardDescription>
-              Create a new account.
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleRegister}>
-            <CardContent className="space-y-2">
-              <div className="space-y-1">
-                <Label htmlFor="registerUsername">Username</Label>
-                <Input id="registerUsername" value={registerUsername} onChange={(e) => setRegisterUsername(e.target.value)} required className={cn("bg-gray-700 border-gray-600 text-white focus:border-blue-500")} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="registerEmail">Email</Label>
-                <Input id="registerEmail" type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} required className={cn("bg-gray-700 border-gray-600 text-white focus:border-blue-500")} />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="registerPassword">Password</Label>
-                <Input id="registerPassword" type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required className={cn("bg-gray-700 border-gray-600 text-white focus:border-blue-500")} />
-              </div>
-              {registerError && <p className="text-red-500 text-sm">{registerError}</p>}
-              {registerSuccess && <p className="text-green-500 text-sm">{registerSuccess}</p>}
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className={cn("w-full bg-green-600 hover:bg-green-700 text-white")} disabled={isLoading}>
-                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                Register
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </TabsContent>
-    </Tabs>
+    <div className="flex items-center justify-center h-full p-4">
+      <Card className={cn("w-full max-w-sm", cardStyle)}>
+         <CardHeader className="text-center pt-6 pb-4"> <CardTitle className="text-2xl font-bold text-white" style={{ textShadow: `0 0 6px ${neonColor}` }}> {isRegistering ? 'Criar Conta' : 'Login USBMKT'} </CardTitle> <CardDescription className="text-slate-400 text-sm pt-1"> {isRegistering ? 'Preencha os dados para registrar.' : 'Acesse sua conta para continuar.'} </CardDescription> </CardHeader>
+         <CardContent className="px-6 pb-4">
+            <form onSubmit={isRegistering ? handleRegisterSubmit : handleLoginSubmit} className="space-y-4">
+                <div className="space-y-1">
+                    <Label htmlFor="username" className={labelStyle}>Usuário</Label>
+                    <Input id="username" name="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} required className={cn(inputStyle)} placeholder="seu_usuario" autoComplete="username" />
+                </div>
+                {/* <<< CORREÇÃO: Campo de Email (visível apenas no registro) >>> */}
+                {isRegistering && (
+                    <div className="space-y-1">
+                        <Label htmlFor="email" className={labelStyle}>Email</Label>
+                        <Input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={cn(inputStyle)} placeholder="seu_email@exemplo.com" autoComplete="email" />
+                    </div>
+                )}
+                <div className="space-y-1">
+                    <Label htmlFor="password" className={labelStyle}>Senha</Label>
+                    <Input id="password" name="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className={cn(inputStyle)} placeholder="********" autoComplete={isRegistering ? "new-password" : "current-password"} />
+                </div>
+                {isRegistering && (
+                    <div className="space-y-1">
+                        <Label htmlFor="confirmPassword" className={labelStyle}>Confirmar Senha</Label>
+                        <Input id="confirmPassword" name="confirmPassword" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className={cn(inputStyle)} placeholder="********" autoComplete="new-password" />
+                    </div>
+                )}
+                {error && <p className="text-xs text-red-500 text-center pt-1" style={{ textShadow: `0 0 3px ${neonRedColor}` }}>{error}</p>}
+                <Button type="submit" className={cn(buttonStyle, "w-full mt-2")} disabled={loading}>
+                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (isRegistering ? 'Registrar' : 'Entrar')}
+                </Button>
+            </form>
+         </CardContent>
+         <CardFooter className="flex justify-center pb-6 pt-2">
+            <Button variant="link" onClick={() => { setIsRegistering(!isRegistering); setError(''); setPassword(''); setConfirmPassword(''); setEmail(''); /* Limpa email ao trocar */ }} className={cn(linkButtonStyle)} type="button" >
+                {isRegistering ? 'Já tem uma conta? Faça Login' : 'Não tem conta? Registre-se'}
+            </Button>
+         </CardFooter>
+      </Card>
+    </div>
   );
 }

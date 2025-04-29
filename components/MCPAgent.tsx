@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList } from '@/components/ui/command';
+import { v4 as uuidv4 } from 'uuid'; // Importar uuid para gerar IDs
 
 const MCPAgent: React.FC = () => {
   const {
@@ -37,7 +38,6 @@ const MCPAgent: React.FC = () => {
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
 
-  // CORREÇÃO: Alterar HTMLDivAreaElement para HTMLDivElement
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,7 +52,8 @@ const MCPAgent: React.FC = () => {
   const handleSend = async () => {
     if (input.trim() === '' || isLoading) return;
 
-    const newUserMessage: Message = { role: 'user', content: input };
+    // CORREÇÃO: Gerar e atribuir um ID único à mensagem do usuário
+    const newUserMessage: Message = { id: uuidv4(), role: 'user', content: input };
     const updatedHistory = [...conversationHistory, newUserMessage];
     setConversationHistory(updatedHistory);
     setInput('');
@@ -73,12 +74,14 @@ const MCPAgent: React.FC = () => {
       }
 
       const data = await response.json();
-      const assistantMessage: Message = { role: 'assistant', content: data.reply };
+      // CORREÇÃO: Gerar e atribuir um ID único à mensagem do assistente
+      const assistantMessage: Message = { id: uuidv4(), role: 'assistant', content: data.reply };
       setConversationHistory([...updatedHistory, assistantMessage]);
 
     } catch (error: any) {
       console.error('Erro ao enviar mensagem para o agente:', error);
-      const errorMessage: Message = { role: 'assistant', content: `Ocorreu um erro: ${error.message}. Por favor, tente novamente.` };
+      // CORREÇÃO: Gerar e atribuir um ID único à mensagem de erro
+      const errorMessage: Message = { id: uuidv4(), role: 'assistant', content: `Ocorreu um erro: ${error.message}. Por favor, tente novamente.` };
       setConversationHistory([...updatedHistory, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -206,7 +209,7 @@ const MCPAgent: React.FC = () => {
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-3">
         <div className="flex flex-col space-y-3">
           {conversationHistory.map((message, index) => (
-            <ChatMessage key={index} message={message} />
+            <ChatMessage key={message.id || index} message={message} /> {/* Usar message.id como key */}
           ))}
            {isLoading && (
                <div className="flex justify-start">

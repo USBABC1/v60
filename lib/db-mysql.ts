@@ -37,7 +37,23 @@ async function addForeignKeyIfNotExists(connection: mysql.PoolConnection | mysql
 }
 
 export async function initializeUsersTable() {
-    const pool = getDbPool(); try { await pool.query(` CREATE TABLE IF NOT EXISTS users ( id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(255) NOT NULL UNIQUE, email VARCHAR(255) NOT NULL UNIQUE, password VARCHAR(255) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; `); } catch (error){ console.error("Erro init users:", error); throw error; }
+    const pool = getDbPool();
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(255) NOT NULL UNIQUE,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+        // ADICIONADO: Adicionar colunas de confirmação de e-mail
+        await addColumnIfNotExistsMysql(pool, 'users', 'confirmation_token', 'VARCHAR(255) UNIQUE NULL');
+        await addColumnIfNotExistsMysql(pool, 'users', 'is_confirmed', 'BOOLEAN DEFAULT FALSE');
+
+    } catch (error){ console.error("Erro init users:", error); throw error; }
 }
 
 export async function initializeCampaignsTable() {
@@ -45,7 +61,36 @@ export async function initializeCampaignsTable() {
 }
 
 export async function initializeCreativesTable() {
-    const pool = getDbPool(); try { await pool.query(` CREATE TABLE IF NOT EXISTS creatives ( id VARCHAR(255) PRIMARY KEY, campaign_id VARCHAR(255) NULL, name VARCHAR(255), type ENUM('image', 'video', 'text', 'carousel', 'other') DEFAULT 'other', file_url VARCHAR(1024), content TEXT, metrics JSON, status ENUM('active', 'inactive', 'draft', 'archived') DEFAULT 'draft', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; `); await addColumnIfNotExistsMysql(pool, 'creatives', 'campaign_id', 'VARCHAR(255) NULL'); await addForeignKeyIfNotExists(pool, 'creatives', 'fk_creative_campaign', 'FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL'); } catch (error){ console.error("Erro init creatives:", error); throw error; }
+    const pool = getDbPool();
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS creatives (
+                id VARCHAR(255) PRIMARY KEY,
+                campaign_id VARCHAR(255) NULL,
+                name VARCHAR(255),
+                type ENUM('image', 'video', 'text', 'carousel', 'other') DEFAULT 'other',
+                file_url VARCHAR(1024),
+                content TEXT,
+                metrics JSON,
+                status ENUM('active', 'inactive', 'draft', 'archived') DEFAULT 'draft',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        `);
+        try {
+            await pool.query(`ALTER TABLE copies CHANGE COLUMN name title VARCHAR(255);`);
+            console.log("MySQL: Coluna 'name' renomeada para 'title' em 'copies'.");
+        } catch (renameError: any) {
+            if (renameError.code !== 'ER_BAD_FIELD_ERROR' && renameError.code !== 'ER_DUP_FIELDNAME') {
+                console.error("Erro ao renomear coluna name->title:", renameError);
+            }
+        }
+        await addColumnIfNotExistsMysql(pool, 'creatives', 'campaign_id', 'VARCHAR(255) NULL');
+        await addForeignKeyIfNotExists(pool, 'creatives', 'fk_creative_campaign', 'FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE SET NULL');
+    } catch (error: any) {
+        console.error("Erro init creatives:", error);
+        throw error;
+    }
 }
 
 export async function initializeFlowsTable() {
